@@ -1,0 +1,36 @@
+2.1
+Thêm mới/Xóa/Chỉnh sửa trên bang enroll
+
+2.2
+a/ Ràng buộc chuyên môn: Môn học mà mentor đăng ký giảng dạy bắt buộc phải thuộc sự quản lý của Khoa (Faculty) mà mentor đó trực thuộc.
+
+Đây là ràng buộc toàn vẹn liên quan đến nhiều bảng (enroll, mentor, subject). Câu lệnh CREATE TABLE (thậm chí có Foreign Key) không thể kiểm tra logic bắt cầu này (Mentor -> Faculty == Subject -> Faculty), do đó bắt buộc phải dùng Trigger.
+
++ Xác định các thao tác DML
+Việc vi phạm ràng buộc có thể xảy ra khi:
+
+INSERT vào bảng enroll: Khi tạo mới một lớp đăng ký, nếu môn học không cùng khoa với mentor, phải chặn lại.
+
+UPDATE trên bảng enroll: Khi sửa đổi thông tin (đổi mentor hoặc đổi môn học), phải kiểm tra lại tính hợp lệ của khoa.
+
+b/ Chọn thuộc tính dẫn xuất: mentee_current_count trong bảng tutor_pair. Đây là thuộc tính lưu trữ số lượng mentee hiện tại của một lớp học, thay vì phải dùng COUNT(*) mỗi lần truy vấn.
+
++ Xác định các thao tác DML
+Giá trị của mentee_current_count sẽ thay đổi khi:
+
+INSERT vào bảng mentee_list: Khi có mentee mới tham gia lớp -> Tăng biến đếm (+1).
+
+DELETE trên bảng mentee_list: Khi mentee rời khỏi lớp -> Giảm biến đếm (-1).
+
+2.3
+1. Thủ tục 1: Tra cứu lịch dạy của Mentor theo ngày trong tuần
+Mô tả: Thủ tục này kết nối bảng tutor_pair, mentor và user để hiển thị chi tiết các lớp học diễn ra vào một ngày cụ thể (ví dụ: 'Thu Hai'), sắp xếp theo tiết bắt đầu.
+
+2. Thủ tục 2: Thống kê các lớp học có đông sinh viên đăng ký
+Mô tả: Thủ tục này tính toán tổng số lượng sinh viên hiện tại (mentee_current_count) của từng môn học thuộc một khoa cụ thể. Chỉ hiển thị những môn có tổng số sinh viên lớn hơn một mức nhất định (ví dụ: > 1 sinh viên).
+
+2.4
+1. Hàm 1: Tính tổng số tiết dạy và đánh giá tải công việc của Mentor
+Mục đích: Duyệt qua các lớp học (tutor_pair) của một mentor cụ thể, tính tổng số tiết (session) họ phải dạy và trả về đánh giá (Rảnh rỗi, Bình thường, Quá tải).
+2. Hàm 2: Kiểm tra mức độ chuyên cần của Mentee
+Mục đích: Duyệt qua danh sách các lớp mà Mentee tham gia (mentee_list join tutor_pair), đếm tổng số môn học và kiểm tra xem có môn nào học vào cuối tuần (Thứ 7, CN) hay không để đánh giá mức độ chăm chỉ.
