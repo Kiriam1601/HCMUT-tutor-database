@@ -1,0 +1,31 @@
+-- ==========================================================
+-- TEST CASE 1: THÊM MỚI THÀNH CÔNG (Happy Case)
+-- Mong đợi: Insert thành công 1 dòng vào bảng enroll
+-- ==========================================================
+CALL sp_enroll_insert('MENTOR01', 'Lap Trinh C++', 1, 3, 'H6-101', 'Thu Hai');
+
+-- Kiểm tra kết quả:
+SELECT * FROM enroll WHERE mentorID = 'MENTOR01'; 
+
+
+-- ==========================================================
+-- TEST CASE 2: LỖI LOGIC PROCEDURE (Tiết bắt đầu > Tiết kết thúc)
+-- Mong đợi: Lỗi 'Tiết bắt đầu phải nhỏ hơn hoặc bằng tiết kết thúc'
+-- ==========================================================
+CALL sp_enroll_insert('MENTOR01', 'Lap Trinh C++', 5, 2, 'H6-101', 'Thu Ba');
+
+
+-- ==========================================================
+-- TEST CASE 3: LỖI TRIGGER (Sai Khoa/Môn học)
+-- Mentor thuộc Khoa 1, nhưng cố dạy môn của Khoa 2
+-- Mong đợi: Lỗi 'Môn học này không thuộc khoa mà mentor đang phụ trách'
+-- ==========================================================
+CALL sp_enroll_insert('MENTOR01', 'Mach Dien', 7, 9, 'H6-102', 'Thu Tu');
+
+
+-- ==========================================================
+-- TEST CASE 4: LỖI TRIGGER (Trùng lịch)
+-- Đã đăng ký T2 (tiết 1-3), giờ đăng ký tiếp T2 (tiết 2-4)
+-- Mong đợi: Lỗi 'Thời gian đăng ký trùng lặp...'
+-- ==========================================================
+CALL sp_enroll_insert('MENTOR01', 'Cau Truc Du Lieu', 2, 4, 'H6-103', 'Thu Hai');

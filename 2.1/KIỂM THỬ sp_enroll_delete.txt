@@ -1,0 +1,18 @@
+-- Lấy lại ID cần xóa (lớp đang ở Thứ 3)
+SET @deleteID = (SELECT enrollID FROM enroll WHERE day = 'Thu Ba' AND mentorID = 'MENTOR01' LIMIT 1);
+
+-- ==========================================================
+-- TEST CASE 1: XÓA THÀNH CÔNG
+-- Mong đợi: Không báo lỗi, bản ghi biến mất khỏi bảng enroll
+-- ==========================================================
+CALL sp_enroll_delete(@deleteID);
+
+-- Kiểm tra xem còn không (kết quả phải là Empty set)
+SELECT * FROM enroll WHERE enrollID = @deleteID;
+
+
+-- ==========================================================
+-- TEST CASE 2: XÓA ID KHÔNG TỒN TẠI
+-- Mong đợi: Lỗi 'Không tìm thấy ID đăng ký để xóa'
+-- ==========================================================
+CALL sp_enroll_delete(9999);
